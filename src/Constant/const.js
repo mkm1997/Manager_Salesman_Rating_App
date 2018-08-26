@@ -1,1 +1,1 @@
-export const LOGIN = false;
+export var LOGIN = false;

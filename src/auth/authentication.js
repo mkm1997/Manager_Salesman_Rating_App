@@ -1,36 +1,39 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
-import {Header, Button, Card, CardItem, HeaderNoShadow,Input} from "../component/common";
 import LoginForm from "../component/LoginForm";
-import LOGIN from "../Constant/const.js"
-import ListView  from "../View/ListView";
+import LOGIN from "../Constant/const.js";
+import ManagerView  from "../View/ManagerView";
+import {HeaderNoShadow} from "../component/common";
 
 
 
 
 
-export default class Authentication extends Component<{}>{
+export default class Authentication extends Component{
 
 
+
+
+    state = {authenticated: false};
 
     // componentWillMount(){
     //
     //
     // }
-    renderViewFunction =() =>{
-        if(LOGIN){
+    renderViewFunction(){
+        if(this.state.authenticated){
+            console.log("Login is done");
             return(
 
                 <View>
                     <HeaderNoShadow headerText="Escale"/>
-                    <ListView/>
+                    <ManagerView/>
 
                 </View>
             );
         }
         else{
             return(
-
                 <View>
                     <HeaderNoShadow headerText="Escale"/>
                     <LoginForm/>
@@ -46,8 +49,10 @@ export default class Authentication extends Component<{}>{
 
 
         return(
-
-           this.renderViewFunction()
+            <View>
+                <HeaderNoShadow headerText="Escale"/>
+                <LoginForm/>
+            </View>
 
         );
     }

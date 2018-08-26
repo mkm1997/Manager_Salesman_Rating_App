@@ -4,18 +4,23 @@ import {CardItem,ButtonRoundedExample,Spinner} from "./common";
 import { Button,Card,icon,FormInput,FormLabel} from 'react-native-elements';
 import {Container, Text, Content, Form, Item, Input, Label, Picker, Icon, Toast} from 'native-base';
 import { Dropdown } from 'react-native-material-dropdown';
-import ListView from "../View/ListView";
+import ManagerView from "../View/ManagerView";
+import {AsyncStorage} from "react-native";
+
 import LOGIN from "../Constant/const.js";
+// import from "../auth/authentication";
+
 
 // path of python server
 
 // /home/manish/PycharmProjects/SalesMan_Manager/Manage
 
 
-let auth = false;
 
 class LoginForm extends Component{
-    state = {username:'',password:'',value:'',loading:false};
+
+
+    state = {username:'',password:'',value:'',loading:false,auth:false};
 
     onValueChange(value){
         console.log(value);
@@ -43,11 +48,12 @@ class LoginForm extends Component{
         console.log(username,password,value);
 
 
-        fetch('http://192.168.43.12:8000/login/', {
+        fetch('http://techinvent.pythonanywhere.com/login/', { // ye login karwa dega
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                'Authorization':'Manish'
             },
             body: JSON.stringify({
                 username: username,
@@ -61,6 +67,13 @@ class LoginForm extends Component{
                 if (responseJson.status === "success")
                 {
                     console.log(responseJson.message);
+                    try {
+                        AsyncStorage.setItem("token",responseJson.token);
+                        console.log("saved in local store");
+                    } catch (error) {
+                        Alert.alert('Error', 'There was an error.')
+                    }
+
                     this.onLoginSuccess();
                 }
                 else{
@@ -73,7 +86,7 @@ class LoginForm extends Component{
             })
             .catch((error) => {
                 console.error(error);
-            });
+            }); //ruk dek h
 
 
     }
@@ -81,31 +94,26 @@ class LoginForm extends Component{
 
     onLoginSuccess(){
 
+
         this.setState({
             username:'',
             password:'',
             value:'',
             loading:false,
+            auth:true,
 
         });
-        LOGIN = true;
-        alert("login");
+        console.log(AsyncStorage.getItem("token"));
+        this.render()
 
-        this.renderButton();
 
-        return(
 
-            <View>
-                <ListView/>
-            </View>
-
-        );
 
 
     }
 
     onLoginFail(){
-        alert("hello");
+
         this.setState({
             loading:false,
 
@@ -129,8 +137,7 @@ class LoginForm extends Component{
 
             <Button
                 raised
-                buttonStyle={{backgroundColor: "#00ccff", borderRadius: 7,width:320}}
-
+                buttonStyle={{backgroundColor: "#00ccff", borderRadius: 5,width:260}}
                 title={`Login`}
                 onPress = {this.onButtonPress.bind(this)}
             />
@@ -142,58 +149,86 @@ class LoginForm extends Component{
 
     }
 
-    render(){
-        let data = [{
-            value: 'Manager',
-        }, {
-            value: 'Salesman',
-        }];
+
+    afterLoginView(){
+
+        console.log("after Login"); //and ye login ke baad dusre page pe bhej dega
+
+
 
         return(
-            <View style={style.containerStyle} >
+            <View>
+                <ManagerView username={"Manish"}
+                             password={"django123"}/>
 
-                <Card containerStyle={{marginTop:100}} >
-
-                    <CardItem>
-                        <Picker
-                            style={{display:'flex',flex: 1, alignSelf: 'stretch'}}
-                            selectedValue={this.state.value}
-                            onValueChange={value => this.onValueChange(value)}
-                        >
-                            <Picker.Item label="Login as" value="Login as" />
-                            <Picker.Item label="Manager" value="Manager" />
-                            <Picker.Item label="Salesman" value="Salesman" />
-                        </Picker>
-
-                    </CardItem>
-
-                    <CardItem>
-                        <Input
-                            placeholder = "   Username"
-                            onChangeText = {(username) => this.setState({username})}
-                        />
-
-                    </CardItem>
-
-                    <CardItem>
-                        <Input
-                            placeholder= "   Password"
-                            onChangeText = {password => this.setState({password})}
-                            secureTextEntry
-
-                        />
-                    </CardItem>
-                <CardItem>
-
-                    {this.renderButton()}
-                </CardItem>
-
-                </Card>
             </View>
-
-
         );
+
+
     }
+
+    render() {
+        if (this.state.auth === false) {
+            let data = [{
+                value: 'Manager',
+            }, {
+                value: 'Salesman',
+            }];
+
+            return (
+                <View style={style.containerStyle}>
+
+                    <Card containerStyle={{marginTop: 100}}>
+
+                        <CardItem>
+                            <Picker
+                                style={{display: 'flex', flex: 1, alignSelf: 'stretch'}}
+                                selectedValue={this.state.value}
+                                onValueChange={value => this.onValueChange(value)}
+                            >
+                                <Picker.Item label="Login as" value="Login as"/>
+                                <Picker.Item label="Manager" value="Manager"/>
+                                <Picker.Item label="Salesman" value="Salesman"/>
+                            </Picker>
+
+                        </CardItem>
+
+                        <CardItem>
+                            <Input
+                                placeholder="   Username"
+                                onChangeText={(username) => this.setState({username})}
+                            />
+
+                        </CardItem>
+
+                        <CardItem>
+                            <Input
+                                placeholder="   Password"
+                                onChangeText={password => this.setState({password})}
+                                secureTextEntry
+
+                            />
+                        </CardItem>
+                        <CardItem>
+                            {this.renderButton()}
+                        </CardItem>
+
+                    </Card>
+                </View>
+
+
+            );
+        }
+
+        else{
+
+          return  this.afterLoginView()
+
+
+        }
+    }
+
+
 
 
 

@@ -20,9 +20,10 @@ const styles = {
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 1,
-        marginLeft: 5,
-        marginRight: 5,
+        marginLeft: 1,
+        marginRight: 1,
         marginTop: 10,
+        paddingBottom:20,
         flex: 1,
         justifyContent: 'space-around'
     }
