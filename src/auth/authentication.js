@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import { Text, View} from 'react-native';
 import LoginForm from "../component/LoginForm";
-import LOGIN from "../Constant/const.js";
+import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import reducers from '../reducers';
+import store from '../store';
 import ManagerView  from "../View/ManagerView";
 import {HeaderNoShadow} from "../component/common";
+
+
+
 
 
 
@@ -16,43 +22,17 @@ export default class Authentication extends Component{
 
     state = {authenticated: false};
 
-    // componentWillMount(){
-    //
-    //
-    // }
-    renderViewFunction(){
-        if(this.state.authenticated){
-            console.log("Login is done");
-            return(
 
-                <View>
-                    <HeaderNoShadow headerText="Escale"/>
-                    <ManagerView/>
-
-                </View>
-            );
-        }
-        else{
-            return(
-                <View>
-                    <HeaderNoShadow headerText="Escale"/>
-                    <LoginForm/>
-                </View>
-            );
-
-        }
-
-
-
-    };
     render(){
 
 
         return(
-            <View>
+            <Provider store={createStore(reducers)}>
+            <View style={{flex:1}}>
                 <HeaderNoShadow headerText="Escale"/>
                 <LoginForm/>
             </View>
+            </Provider>
 
         );
     }

@@ -20,7 +20,28 @@ import LOGIN from "../Constant/const.js";
 class LoginForm extends Component{
 
 
-    state = {username:'',password:'',value:'',loading:false,auth:false};
+    state = {username:'',password:'',value:'',loading:false,auth:false,token:'',oldtoken:''};
+    componentWillMount(){
+
+        this.onLoad()
+
+    }
+
+    onLoad = async () => {
+        try {
+            const storedValue = await AsyncStorage.getItem("token");
+            //console.log("token is "+storedValue);
+            this.setState({oldtoken:storedValue});
+
+
+        } catch (error) {
+            console.log('Error There was an error.'+error)
+        }
+    };
+
+
+
+
 
     onValueChange(value){
         console.log(value);
@@ -68,6 +89,7 @@ class LoginForm extends Component{
                 {
                     console.log(responseJson.message);
                     try {
+                        this.setState({token:responseJson.token});
                         AsyncStorage.setItem("token",responseJson.token);
                         console.log("saved in local store");
                     } catch (error) {
@@ -157,9 +179,9 @@ class LoginForm extends Component{
 
 
         return(
-            <View>
-                <ManagerView username={"Manish"}
-                             password={"django123"}/>
+            <View style={{flex:1}}>
+                <ManagerView
+                token={this.state.token}/>
 
             </View>
         );
@@ -168,7 +190,13 @@ class LoginForm extends Component{
     }
 
     render() {
-        if (this.state.auth === false) {
+        if(this.state.oldtoken ==='')
+        {
+            this.state.oldtoken = undefined
+        }
+        console.log(this.state.oldtoken);
+
+        if (this.state.auth === false && this.state.oldtoken === undefined) {
             let data = [{
                 value: 'Manager',
             }, {
@@ -195,7 +223,7 @@ class LoginForm extends Component{
 
                         <CardItem>
                             <Input
-                                placeholder="   Username"
+                                placeholder="Username"
                                 onChangeText={(username) => this.setState({username})}
                             />
 
@@ -203,7 +231,7 @@ class LoginForm extends Component{
 
                         <CardItem>
                             <Input
-                                placeholder="   Password"
+                                placeholder="Password"
                                 onChangeText={password => this.setState({password})}
                                 secureTextEntry
 

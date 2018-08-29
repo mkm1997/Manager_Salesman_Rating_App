@@ -1,41 +1,33 @@
 import React, {Component} from 'react';
 import {Text,AsyncStorage,View,ListView} from 'react-native';
 
-import {Card, List,ListItem} from 'react-native-elements';
+import {Card, List} from 'react-native-elements';
+import {ListItem} from "../component/common";
 import axios from 'axios';
-
-
-
-
-
+import {connect} from 'react-redux';
 
 
 class ManagerView extends Component{
 
 
-
     state = {
         list_item:[],
         storedValue: '',
-        flag:false
+        flag:false,
+
 
     };
 
     constructor(props) {
         super(props);
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.state = {
-            dataSource: ds.cloneWithRows(['row 1', 'row 2']),
-        };
-
-
 
     }
     componentWillMount() {
 
-        this.onLoad();
 
+        console.log("ouuooooooooooooooooooooooooooooooooo"+this.props.token);
 
+        this.onLoad()
 
     }
 
@@ -45,6 +37,7 @@ class ManagerView extends Component{
             //console.log("token is "+storedValue);
             this.setState({ storedValue });
             this.getListData();
+            return true
 
 
         } catch (error) {
@@ -52,7 +45,8 @@ class ManagerView extends Component{
         }
     };
 
-    getListData(){
+    async getListData(){
+
         console.log("hello me aa gaya"+this.state.storedValue);
         fetch('http://techinvent.pythonanywhere.com/managerView/', {
             method: 'GET',
@@ -62,26 +56,21 @@ class ManagerView extends Component{
                 'Authorization': 'Token ' +this.state.storedValue,
 
             },
-
         }).then((response) => response.json()).then((responseJson) => {
 
             if (responseJson.status === "success") {
-                // let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-                // let m = ds.cloneWithRows(responseJson.data);
-                // this.state = {
-                //     dataSource: m,
-                // };
-                // alert(this.state.dataSource);
+
                 this.setState({
                     list_item:responseJson.data
                 });
+                // this.renderRow(responseJson.data);
 
                 console.log(responseJson.data);
 
                 return responseJson.data;
 
             } else {
-                // console.log(this.state.storedValue);
+
                 console.log(AsyncStorage.getItem("token"));
                 console.log(responseJson.message);
                 return responseJson.message
@@ -94,51 +83,64 @@ class ManagerView extends Component{
 
     };
 
-    // getListView = () =>{
-    //     this.setState({
-    //         flag:true
-    //     });
-    //
-    //
-    //   return(
-    //
-    //       <ListView
-    //           dataSource={this.state.dataSource}
-    //           renderRow={(rowData) => <Text>{rowData}</Text>}
-    //       />
-    //   )
-    // };
+    getDataFromManager = (props) =>{
+        this.setState({
+            flag:true
+        });
+        console.log("aa gaya bhai list view me");
 
 
+        return(
 
+            <ListView
+                dataSource={this.props}
+                renderRow={(rowData) => <Text>{rowData}</Text>}
+            />
+        )
+    };
+
+    renderRow(managerdata){
+        console.log("render row"+managerdata);
+
+        return <ListItem data={managerdata}/>
+
+    }
 
 
     render(){
 
-        // console.log(this.state.dataSource);
-        // if (this.state.flag){
+        console.log(this.state.list_item);
+        //console.log("ouuuu again __"+this.getListData());
+        if (this.state.list_item !==[])
+        {
+            let li = this.state.list_item;
+            for(let i = 0;i<li.length;++i)
+            {
+                console.log("loop me hu bhai"+li[i].salesman)
+            }
+
+            console.log("renderView"+this.state.list_item[0]);
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.dataSource = ds.cloneWithRows(this.state.list_item);
+
+
 
             return(
-                <View>
-
                 <ListView
-                    dataSource={this.state.dataSource}
-                    renderRow={(rowData) => <Text>{rowData}</Text>}
+                dataSource={this.dataSource}
+                renderRow={this.renderRow}
                 />
-                </View>
             );
-       // }
-        // else
-        // {
-        //
-        //     return(
-        //
-        //         <Text>
-        //             hello
-        //         </Text>
-        //     );
-        //
-        // }
+        }else
+        {
+            return(
+                <View>
+                    <Text>data is not loaded</Text>
+                </View>
+            )
+
+        }
+
 
 
 
@@ -150,9 +152,16 @@ class ManagerView extends Component{
 
 }
 
+//<img src="/cat.jpg" style={{ position: 'absolute', left: mouse.x, top: mouse.y }} />
+
+const mapStateToProps = state =>{
+
+    console.log("in reducer view  ouuuuuuuuuuuuuu");
+    console.log(state.managerListdata);
+
+    return {managerdata:state.managerListdata}
+};
 
 
-
-
-
-export default ManagerView
+//export default connect(mapStateToProps)(ManagerView)
+export default ManagerView;
